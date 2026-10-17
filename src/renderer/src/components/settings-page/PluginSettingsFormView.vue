@@ -19,6 +19,8 @@ const emit = defineEmits<{
   update: [key: string, value: string]
   submit: []
   reset: []
+  /** A `button` field was pressed; the value is the field key. */
+  action: [key: string]
 }>()
 
 const groups = computed(() => groupPluginSettingsFields(props.form.fields))
@@ -60,15 +62,29 @@ function toggle(field: PluginSettingsField): void {
     >
       <h4 v-if="group.title" class="plugin-settings-group-title">{{ group.title }}</h4>
       <div v-for="field in group.fields" :key="field.key" class="plugin-settings-field">
-        <div class="plugin-settings-label">
+        <div v-if="field.type !== 'button'" class="plugin-settings-label">
           <label :id="`${fieldId(field)}-label`" :for="fieldId(field)">
             {{ field.label }}<b v-if="field.required"> *</b>
           </label>
           <small v-if="field.description">{{ field.description }}</small>
         </div>
 
+        <div v-if="field.type === 'button'" class="plugin-settings-action">
+          <button
+            :id="fieldId(field)"
+            type="button"
+            class="soft-button"
+            :disabled="busy || pending"
+            @click="emit('action', field.key)"
+          >
+            <i v-if="pending" class="pi pi-spin pi-spinner"></i>
+            {{ field.label }}
+          </button>
+          <small v-if="field.description">{{ field.description }}</small>
+        </div>
+
         <span
-          v-if="field.type === 'toggle'"
+          v-else-if="field.type === 'toggle'"
           :id="fieldId(field)"
           class="toggle-switch plugin-settings-toggle"
           :class="{ active: isOn(field), inactive: !isOn(field) }"

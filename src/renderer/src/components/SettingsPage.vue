@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { documentMotionMode, scrollMotionBehavior } from '../app/scrollMotion'
 import GeneralSettingsSection from './settings-page/GeneralSettingsSection.vue'
@@ -87,6 +87,7 @@ const {
   setPluginSettingsField,
   submitPluginSettingsForm,
   resetPluginSettingsForm,
+  runPluginSettingsAction,
   autoLoadPluginSettingsPanels,
   disposePluginSettingsPanels
 } = usePluginSettingsPanels()
@@ -1455,6 +1456,7 @@ onBeforeUnmount(() => {
           :set-plugin-settings-field="setPluginSettingsField"
           :submit-plugin-settings-form="submitPluginSettingsForm"
           :reset-plugin-settings-form="resetPluginSettingsForm"
+          :run-plugin-settings-action="runPluginSettingsAction"
         >
           <AboutSettingsSection
             :app-version="appVersion"

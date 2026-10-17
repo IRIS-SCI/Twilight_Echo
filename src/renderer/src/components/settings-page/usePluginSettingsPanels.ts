@@ -213,6 +213,37 @@ export function usePluginSettingsPanels(execute: ExecuteCommand = defaultExecute
     }
   }
 
+  /**
+   * Runs a `button` field. The command is invoked with `{ action: <fieldKey> }`
+   * plus the form's current draft values, so a plugin can act on what the user
+   * has typed without requiring a separate save first. The result is treated
+   * exactly like a submit result, including an optional refreshed form.
+   */
+  async function runPluginSettingsAction(panel: UiContribution, fieldKey: string): Promise<void> {
+    const stateKey = pluginPanelStateKey(panel)
+    const form = pluginSettingsForms.value[stateKey]
+    if (!form || runningPluginSettingsCommand.value) return
+    const field = form.fields.find((candidate) => candidate.key === fieldKey)
+    if (!field || field.type !== 'button') return
+    const values = pluginSettingsValues.value[stateKey] ?? {}
+    const command = field.command || form.submitCommand
+    runningPluginSettingsCommand.value = stateKey
+    setFeedback(stateKey, '')
+    try {
+      const result = await execute(command, [{ action: fieldKey, values: { ...values } }])
+      const nextForm = refreshedForm(result)
+      if (nextForm) {
+        draftRevisions.set(stateKey, (draftRevisions.get(stateKey) ?? 0) + 1)
+        applyForm(stateKey, nextForm)
+      }
+      setFeedback(stateKey, submitResultMessage(result))
+    } catch (err) {
+      setError(stateKey, err)
+    } finally {
+      runningPluginSettingsCommand.value = ''
+    }
+  }
+
   /** Flush pending live edits instead of dropping them when the page closes. */
   function disposePluginSettingsPanels(): void {
     for (const stateKey of [...liveTimers.keys()]) {
@@ -248,6 +279,7 @@ export function usePluginSettingsPanels(execute: ExecuteCommand = defaultExecute
     setPluginSettingsField,
     submitPluginSettingsForm,
     resetPluginSettingsForm,
+    runPluginSettingsAction,
     autoLoadPluginSettingsPanels,
     disposePluginSettingsPanels
   }

@@ -15,7 +15,8 @@ const FIELD_TYPES: readonly PluginSettingsFieldType[] = [
   'select',
   'toggle',
   'range',
-  'color'
+  'color',
+  'button'
 ]
 const HEX_COLOR = /^#[\da-f]{6}$/i
 
@@ -98,10 +99,14 @@ function normalizeField(raw: unknown): PluginSettingsField | null {
     min: 0,
     max: 0,
     step: 1,
-    unit: ''
+    unit: '',
+    command: normalizeCommand(field.command)
   }
 
   switch (type) {
+    case 'button':
+      // Buttons hold no value; the host sends `{ action: key }` when pressed.
+      return { ...base, value: '' }
     case 'select': {
       const options = normalizeOptions(field.options)
       if (options.length === 0) return null

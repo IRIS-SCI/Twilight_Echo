@@ -1662,6 +1662,8 @@ export type PluginSettingsFieldType =
   | 'toggle'
   | 'range'
   | 'color'
+  /** One-shot action: pressing it runs `command` with `{ action: key }`. */
+  | 'button'
 
 export interface PluginSettingsOption {
   label: string
@@ -1684,6 +1686,8 @@ export interface PluginSettingsField {
   max: number
   step: number
   unit: string
+  /** `button` only: command to run; falls back to the form's submitCommand. */
+  command: string
 }
 
 export interface PluginSettingsForm {

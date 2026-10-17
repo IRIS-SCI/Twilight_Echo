@@ -220,7 +220,11 @@ return {
 }
 ```
 
-- 字段类型：`text` / `password` / `url` / `select` / `toggle` / `range` / `color`，最多 40 个；相邻且 `group` 相同的字段显示在同一标题下。
+- 字段类型：`text` / `password` / `url` / `select` / `toggle` / `range` / `color` / `button`，最多 40 个；相邻且 `group` 相同的字段显示在同一标题下。
+- **`button`** 是一次性操作，不是设置项：它不持有值，按一下就以
+  `{ action: '<字段 key>', values: { …表单当前填写的内容 } }` 调用该字段的 `command`
+  （省略时为 `submitCommand`）。`values` 让你无需用户先点保存就能用上表单里的最新输入。
+  返回值与 `submitCommand` 相同，可以是 `{ message?, form? }`；执行期间按钮显示为进行中。
 - 提交时 `submitCommand` 收到 `Record<string, string>`：开关为 `'true'`/`'false'`，滑块为数字字符串，颜色为 `#rrggbb`。宿主会丢弃非法字段并钳制滑块范围，但插件仍需自行校验。
 - `submitCommand` / `resetCommand` 可返回 `{ message?, form? }`（`TwilightSettingsFormResult`），`form` 会替换当前表单值。实时模式下若用户在提交途中继续编辑，宿主不会用返回值覆盖新的输入，并会在上一次提交完成后补发一次。
 - contribution 设置 `autoLoad: true` 时，打开设置页会自动载入该表单。
